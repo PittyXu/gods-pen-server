@@ -9,11 +9,14 @@ module.exports = app => {
     accessKeyId: app.config.oss.accessKeyId,
     accessKeySecret: app.config.oss.accessKeySecret,
     bucket: app.config.oss.bucket,
+    internal: app.config.oss.internal,
   })
 
   class OssUploadController extends app.Controller {
-    async uploadByUrls () {
-      const { ctx } = this
+    async uploadByUrls() {
+      const {
+        ctx
+      } = this
       const rule = {
         urls: {
           type: 'array',
@@ -25,12 +28,14 @@ module.exports = app => {
         }
       }
       ctx.validate(rule)
-      let {urls} = ctx.request.body
+      let {
+        urls
+      } = ctx.request.body
       let transHeaders = ctx.request.headers
       let status = {}
       await Promise.all(
         urls.map(url => {
-          return co(function * () {
+          return co(function* () {
             let assetStream
             try {
               assetStream = yield ctx.curl(url, {
@@ -46,7 +51,7 @@ module.exports = app => {
             } catch (e) {
               console.log(e)
             }
-            let fileName = url.replace(/\?.+$/, '').split('/').slice(-1)[0]
+            let fileName = (app.config.oss.prefix + url).replace(/\?.+$/, '').split('/').slice(-1)[0]
             if (!assetStream) {
               status[fileName] = 0
               return
@@ -74,9 +79,11 @@ module.exports = app => {
      * f.append('base64', 'data:image/png;base64,xxxxxx') // 支持多个base64
      * 
      */
-    async uploadFile () {
-      const { ctx } = this
-      const parts  = await ctx.multipart()
+    async uploadFile() {
+      const {
+        ctx
+      } = this
+      const parts = await ctx.multipart()
       let part
       let files = []
       while ((part = await parts()) != null) {
@@ -112,10 +119,10 @@ module.exports = app => {
         }
       }
       ctx.body = files
-      async function upload (filedata, fileName) {
+      async function upload(filedata, fileName) {
         let result
-        await co(function * () {
-          result = yield ossClient.put(fileName, filedata)
+        await co(function* () {
+          result = yield ossClient.put(app.config.oss.prefix + fileName, filedata)
         })
         return {
           name: result && result.name,
@@ -124,6 +131,6 @@ module.exports = app => {
       }
     }
   }
-  
+
   return OssUploadController
 }

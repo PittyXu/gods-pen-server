@@ -1,9 +1,9 @@
 /*
-*
-* 生产环境配置
-* 下面是码良依赖的各种服务，请务必逐一配置
-*
-*/
+ *
+ * 生产环境配置
+ * 下面是码良依赖的各种服务，请务必逐一配置
+ *
+ */
 
 module.exports = {
   sequelize: {
@@ -18,8 +18,10 @@ module.exports = {
     accessKeyId: '',
     accessKeySecret: '',
     host: '', // eg. https://xxxxxx.oss-cn-hangzhou.aliyuncs.com'
-    bucket:'',
-    region: '' // eg. oss-cn-hangzhou
+    bucket: '',
+    region: '', // eg. oss-cn-hangzhou
+    internal: false,
+    prefix: 'godspen/'
   },
   es: {
     index: 'godspen',
